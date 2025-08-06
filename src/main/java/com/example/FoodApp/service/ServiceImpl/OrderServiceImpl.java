@@ -35,12 +35,16 @@ public class OrderServiceImpl implements OrderService {
         return modelMapper.map(orders,OrderDTO.class);
     }
 
+    @Transcational
+    @Override
     public OrderDTO updateOrder(String orderNumber,OrderDTO orderDTO){
         Orders orders=orderRepository.findById(orderNumber).orElseThrow(()->new OrderNotFoundException(orderNumber));
         modelMapper.map(orderDTO,orders);
         Orders updated = orderRepository.save(orders);
         return modelMapper.map(updated,OrderDTO.class);
     }
+
+    @Override
     public String deleteOrder(String orderNumber){
         Orders orders=orderRepository.findById(orderNumber).orElseThrow(()->new OrderNotFoundException(orderNumber));
         orderRepository.delete(orders);
