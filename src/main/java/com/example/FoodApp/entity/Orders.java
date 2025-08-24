@@ -23,6 +23,7 @@ public class Orders {
     private Long restaurantId;
 
     @OneToMany(cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
     private List<OrderItem> orderItemList;
 
     @Column(nullable = false)

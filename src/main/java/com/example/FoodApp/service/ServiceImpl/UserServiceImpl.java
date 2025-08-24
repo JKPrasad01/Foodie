@@ -10,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -19,6 +22,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public UserDTO createUser(UserDTO userDTO){
+        System.out.println(userDTO);
         User user=modelMapper.map(userDTO,User.class);
         User saved= userRepository.save(user);
         return modelMapper.map(saved,UserDTO.class);
@@ -36,10 +40,18 @@ public class UserServiceImpl implements UserService {
             return modelMapper.map(user,UserDTO.class);
     }
 
+    public List<UserDTO> findAll(){
+       List<User> list = userRepository.findAll();
+       return list.stream().map(user -> modelMapper.map(user, UserDTO.class)).toList();
+    }
+
     @Override
     public UserDTO updateUser(Long userId,UserDTO userDTO){
         User user = userRepository.findById(userId).orElseThrow(()->new UserNotFoundException("User not found "+ userId));
+
+
         modelMapper.map(userDTO,user);
+        user.setLastUpdateTime(LocalDateTime.now());
         User updated=userRepository.save(user);
         return modelMapper.map(updated,UserDTO.class);
     }

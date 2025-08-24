@@ -16,6 +16,8 @@ public class Restaurant {
     @Column(nullable = false)
     private String restaurantName;
 
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String restaurantProfile;
 
     @Column(nullable = false)
@@ -28,6 +30,7 @@ public class Restaurant {
 
     private Boolean openOrClosed;
 
-    @OneToMany(cascade = CascadeType.ALL , orphanRemoval = true ,fetch = FetchType.LAZY)
+    @OneToMany( cascade = CascadeType.ALL , orphanRemoval = true ,fetch = FetchType.LAZY)
+    @JoinColumn(name = "restaurant_id")
     private List<Menu> menuList;
 }

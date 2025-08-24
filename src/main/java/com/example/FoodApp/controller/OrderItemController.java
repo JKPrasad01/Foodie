@@ -2,16 +2,17 @@ package com.example.FoodApp.controller;
 
 import com.example.FoodApp.dto.OrderItemDTO;
 import com.example.FoodApp.service.Service.OrderItemService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/order-items")
-@RequiredArgsConstructor
 public class OrderItemController {
-
     private final OrderItemService orderItemService;
+
+    public OrderItemController(OrderItemService orderItemService) {
+        this.orderItemService = orderItemService;
+    }
 
     @PostMapping("/create")
     public ResponseEntity<OrderItemDTO> createOrderItem(@RequestBody OrderItemDTO orderItemDTO) {

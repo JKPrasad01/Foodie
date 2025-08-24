@@ -1,9 +1,6 @@
 package com.example.FoodApp.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
@@ -14,6 +11,8 @@ public class Menu {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long menuId;
     private String menuName;
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String menuProfile;
     private Double rating;
     private String description;

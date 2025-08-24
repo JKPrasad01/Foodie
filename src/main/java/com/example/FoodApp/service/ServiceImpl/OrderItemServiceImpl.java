@@ -5,15 +5,19 @@ import com.example.FoodApp.dto.OrderItemDTO;
 import com.example.FoodApp.entity.OrderItem;
 import com.example.FoodApp.repository.OrderItemRepository;
 import com.example.FoodApp.service.Service.OrderItemService;
-import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
+
 public class OrderItemServiceImpl implements OrderItemService {
     private final OrderItemRepository orderItemRepository;
     private final ModelMapper modelMapper;
+
+    public OrderItemServiceImpl(OrderItemRepository orderItemRepository, ModelMapper modelMapper) {
+        this.orderItemRepository = orderItemRepository;
+        this.modelMapper = modelMapper;
+    }
 
     @Override
     public OrderItemDTO createOrderItem(OrderItemDTO orderItemDTO){
