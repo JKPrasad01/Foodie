@@ -2,7 +2,9 @@ package com.example.FoodApp.controller;
 
 import com.example.FoodApp.Enum.OrderStatus;
 import com.example.FoodApp.dto.OrderDTO;
+import com.example.FoodApp.dto.OrderHistory;
 import com.example.FoodApp.service.Service.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +20,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping("/create")
-    public ResponseEntity<OrderDTO> createOrder(@RequestBody OrderDTO orderDTO) {
+    public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody OrderDTO orderDTO) {
         return ResponseEntity.ok(orderService.createOrder(orderDTO));
     }
 
@@ -50,5 +52,11 @@ public class OrderController {
     @GetMapping("/by-date")
     public ResponseEntity<List<OrderDTO>> getOrdersByDate(@RequestParam String date) {
         return ResponseEntity.ok(orderService.getOrdersByDate(LocalDateTime.parse(date)));
+    }
+
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<OrderHistory>> fetchHistoryByCustomerId(@PathVariable Long userId) {
+        return ResponseEntity.ok(orderService.fetchHistory(userId));
     }
 }

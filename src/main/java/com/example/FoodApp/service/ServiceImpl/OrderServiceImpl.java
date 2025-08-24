@@ -2,9 +2,15 @@ package com.example.FoodApp.service.ServiceImpl;
 
 import com.example.FoodApp.Enum.OrderStatus;
 import com.example.FoodApp.Exception.OrderNotFoundException;
+import com.example.FoodApp.dto.ItemHistory;
 import com.example.FoodApp.dto.OrderDTO;
+import com.example.FoodApp.dto.OrderHistory;
+import com.example.FoodApp.entity.Menu;
 import com.example.FoodApp.entity.Orders;
+import com.example.FoodApp.entity.Restaurant;
+import com.example.FoodApp.repository.MenuRepository;
 import com.example.FoodApp.repository.OrderRepository;
+import com.example.FoodApp.repository.RestaurantRepository;
 import com.example.FoodApp.service.Service.OrderService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +18,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +27,8 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ModelMapper modelMapper;
+    private final RestaurantRepository restaurantRepository;
+    private final MenuRepository menuRepository;
 
     @Transactional
     @Override
@@ -74,5 +83,45 @@ public class OrderServiceImpl implements OrderService {
                 .stream()
                 .map(order -> modelMapper.map(order, OrderDTO.class))
                 .collect(Collectors.toList());
+    }
+
+
+    public List<OrderHistory> fetchHistory(Long userId){
+
+        List<Orders> list =orderRepository.findByUserId(userId);
+
+        List<OrderHistory> oh=new ArrayList<>();
+        list.stream().forEach(orders -> {
+
+            Restaurant restaurant=restaurantRepository.findById(orders.getRestaurantId()).get();
+            OrderHistory orderHistory=new OrderHistory();
+
+
+            orderHistory.setOrderId(orders.getOrderNumber());
+            orderHistory.setRestaurantName(restaurant.getRestaurantName());
+            orderHistory.setOrderAddress(orders.getDeliveryAddress());
+            orderHistory.setOrderDate(orders.getOrderDate());
+            orderHistory.setDeliveryDate(orderHistory.getOrderDate().plusHours(2));
+            orderHistory.setOrderStatus(orders.getOrderStatus());
+
+
+            List<ItemHistory> historyList=new ArrayList<>();
+            orders.getOrderItemList().stream().forEach(orderItem -> {
+
+                Menu menu=menuRepository.findById(orderItem.getMenuId()).get();
+                ItemHistory itemHistory=new ItemHistory();
+
+                itemHistory.setMenuName(menu.getMenuName());
+                itemHistory.setMenuProfile(menu.getMenuProfile());
+                itemHistory.setQuantity(orderItem.getQuantity());
+                itemHistory.setPrice(menu.getPrice());
+
+                historyList.add(itemHistory);
+            });
+            orderHistory.setItemHistories(historyList);
+            oh.add(orderHistory);
+        });
+
+        return oh;
     }
 }

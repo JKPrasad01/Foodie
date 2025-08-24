@@ -9,11 +9,9 @@ import lombok.Data;
 @Data
 @Entity
 public class OrderItem {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderItemId;
     private Long menuId;
-    private Long restaurantId;
-    private Double price;
+    private Long quantity;
 }

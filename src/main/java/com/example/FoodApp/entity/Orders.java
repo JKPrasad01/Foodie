@@ -40,6 +40,8 @@ public class Orders {
 
     private LocalDateTime deliveredDate;
 
+    private String paymentStatus;
+
     @PrePersist
     public void generateOrderNumber(){
         if(this.orderNumber==null){

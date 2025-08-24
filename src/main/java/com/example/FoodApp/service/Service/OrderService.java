@@ -2,6 +2,7 @@ package com.example.FoodApp.service.Service;
 
 import com.example.FoodApp.Enum.OrderStatus;
 import com.example.FoodApp.dto.OrderDTO;
+import com.example.FoodApp.dto.OrderHistory;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,5 +15,6 @@ public interface OrderService {
     List<OrderDTO> getOrdersByUserId(Long userId);
     List<OrderDTO> getOrdersByOrderStatus(OrderStatus orderStatus);
     List<OrderDTO> getOrdersByDate(LocalDateTime orderDate);
+    List<OrderHistory> fetchHistory(Long userId);
 
 }
