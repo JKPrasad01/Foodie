@@ -1,6 +1,7 @@
 package com.example.FoodApp.controller;
 
 //import com.example.FoodApp.config.JwtTokenProvider;
+import com.example.FoodApp.config.JwtUtil;
 import com.example.FoodApp.dto.UserDTO;
 import com.example.FoodApp.service.Service.UserService;
 import jakarta.validation.Valid;
