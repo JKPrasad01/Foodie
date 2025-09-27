@@ -1,17 +1,12 @@
 package com.example.FoodApp.controller;
 
-import com.example.FoodApp.config.JwtTokenProvider;
-import com.example.FoodApp.dto.LoginRequest;
-import com.example.FoodApp.dto.LoginResponse;
+//import com.example.FoodApp.config.JwtTokenProvider;
 import com.example.FoodApp.dto.UserDTO;
 import com.example.FoodApp.service.Service.UserService;
-import com.example.FoodApp.util.JwtUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +18,7 @@ public class UserController {
     private final UserService userService;
     private final AuthenticationManager auth;
     private final JwtUtil jwtUtil;
-    private final JwtTokenProvider jwtTokenProvider;
+//    private final JwtTokenProvider jwtTokenProvider;
 
 
 
@@ -39,19 +34,19 @@ public class UserController {
         return ResponseEntity.ok(list);
     }
 
-    @PostMapping("/log-in")
-    public ResponseEntity<LoginResponse> logIn(@RequestBody LoginRequest request){
-        if (request.getUserEmail() == null || request.getPassword() == null) {
-            throw new IllegalArgumentException("Email and password are required");
-        }
-        UserDTO userDTO=userService.logInUser(request.getUserEmail(),request.getPassword());
-        System.out.println(userDTO.toString());
-
-        String token =  jwtTokenProvider.createToken(request.getUserEmail());
-
-        System.out.println("token "+token);
-        return ResponseEntity.ok(new LoginResponse(userDTO,token));
-    }
+//    @PostMapping("/log-in")
+//    public ResponseEntity<LoginResponse> logIn(@RequestBody LoginRequest request){
+//        if (request.getUserEmail() == null || request.getPassword() == null) {
+//            throw new IllegalArgumentException("Email and password are required");
+//        }
+//        UserDTO userDTO=userService.logInUser(request.getUserEmail(),request.getPassword());
+//        System.out.println(userDTO.toString());
+//
+//        String token =  jwtTokenProvider.createToken(request.getUserEmail());
+//
+//        System.out.println("token "+token);
+//        return ResponseEntity.ok(new LoginResponse(userDTO,token));
+//    }
 
 //
 //    public ResponseEntity<UserDTO> logInUser(@RequestBody UserDTO loginRequest) {

@@ -1,31 +1,35 @@
 package com.example.FoodApp.service.ServiceImpl;
 
+import com.example.FoodApp.Enum.Role;
 import com.example.FoodApp.Exception.UserNotFoundException;
+import com.example.FoodApp.dto.SignupRequest;
 import com.example.FoodApp.dto.UserDTO;
 import com.example.FoodApp.entity.User;
 import com.example.FoodApp.repository.UserRepository;
 import com.example.FoodApp.service.Service.UserService;
-import jakarta.transaction.Transactional;
+
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    public final ModelMapper modelMapper;
-    public final BCryptPasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
+    private static final Logger logger=  LoggerFactory.getLogger(UserServiceImpl.class);
 
-    public UserServiceImpl(UserRepository userRepository, ModelMapper modelMapper, BCryptPasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.modelMapper = modelMapper;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Override
     public UserDTO createUser(UserDTO userDTO){
@@ -78,5 +82,51 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId).orElseThrow(()->new UserNotFoundException("No User existed to Delete"+ userId));
         userRepository.delete(user);
         return "Deleted SuccessFully";
+    }
+
+
+
+    public UserDTO registerUser(SignupRequest signupRequest){
+        logger.info("Starting registration process for username: '{}' :" , signupRequest.getUserName());
+
+        try{
+            // validate user name
+            if(userRepository.existsByUserName(signupRequest.getUserName())){
+                logger.warn("Registration failed : UserName '{}' is Already taken",signupRequest.getUserName());
+            }
+
+            //validate user email
+            if (userRepository.existsByUserEmail(signupRequest.getEmail())){
+                logger.warn("Registration failed : Email '{}' is Already existed",signupRequest.getEmail());
+            }
+
+            // create user
+            User user=mapToUser(signupRequest);
+            User saved = userRepository.save(user);
+
+            logger.info("User registration successfully : ID:{},username:{} ,email : {}",saved.getUserId(),saved.getUserName(),saved.getUserEmail());
+            return modelMapper.map(saved,UserDTO.class);
+        }
+        catch (Exception e){
+            logger.error("Error during registration ",e);
+            throw e;
+        }
+    }
+
+
+    private User mapToUser(SignupRequest signupRequest){
+        User user=new User();
+        user.setUserName(signupRequest.getUserName());
+        user.setUserEmail(signupRequest.getEmail());
+        user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
+        user.setContactNumber(signupRequest.getContactNumber());
+        user.setRole(Role.USER);
+
+        return user;
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isUsernameAvailable(String userName){
+        return userRepository.existsByUserName(userName);
     }
 }
