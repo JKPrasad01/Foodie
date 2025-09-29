@@ -1,9 +1,7 @@
 package com.example.FoodApp.config;
 
-
 import com.example.FoodApp.dto.LoginRequest;
 import com.example.FoodApp.dto.LoginResponse;
-
 import com.example.FoodApp.dto.SignupRequest;
 import com.example.FoodApp.dto.UserDTO;
 import com.example.FoodApp.service.Service.UserService;
@@ -16,7 +14,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Map;
 
 @RestController
@@ -25,8 +22,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthController {
     private static final Logger logger= LoggerFactory.getLogger(AuthController.class);
-
-
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final CustomUserDetailsService customUserDetailsService;
@@ -44,15 +39,12 @@ public class AuthController {
     public ResponseEntity<?> loginUser( @RequestBody LoginRequest loginRequest){
 
         try {
-            System.out.println(loginRequest.toString()+"---------------------1");
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
             );
-
             final UserDetails userDetails = customUserDetailsService.loadUserByUsername(loginRequest.getUsername());
             final String jwtToken = jwtUtil.generateJwtToken(userDetails);
-            System.out.println(userDetails.toString()+"---------------------2");
-            return ResponseEntity.ok(new LoginResponse(userDetails, jwtToken));
+            return ResponseEntity.ok(new LoginResponse( jwtToken));
         } catch (Exception ex) {
             return ResponseEntity
                     .status(401)

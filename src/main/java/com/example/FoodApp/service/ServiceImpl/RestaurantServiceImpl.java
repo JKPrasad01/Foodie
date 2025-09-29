@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -108,36 +109,36 @@ public class RestaurantServiceImpl implements RestaurantService {
         return dto;
     }
 
-//    @Transactional
-//    public RestaurantDTO createRestaurantWithImages(RestaurantDTO restaurantDTO, MultipartFile restaurantImage, List<MultipartFile> menuImages) throws IOException {
-//        // Handle restaurant profile image
-//        if (restaurantImage != null && !restaurantImage.isEmpty()) {
-//            String fileName = UUID.randomUUID().toString() + "_" + restaurantImage.getOriginalFilename();
-//            Path filePath = Paths.get("uploads/restaurants/" + fileName);
-//            Files.createDirectories(filePath.getParent());
-//            Files.write(filePath, restaurantImage.getBytes());
-//            restaurantDTO.setRestaurantProfile(filePath.toString());
-//        }
-//
-//        // Handle menu images
-//        if (menuImages != null && !menuImages.isEmpty() && restaurantDTO.getMenuList() != null) {
-//            for (int i = 0; i < Math.min(menuImages.size(), restaurantDTO.getMenuList().size()); i++) {
-//                MultipartFile menuImage = menuImages.get(i);
-//                if (menuImage != null && !menuImage.isEmpty()) {
-//                    String fileName = UUID.randomUUID().toString() + "_" + menuImage.getOriginalFilename();
-//                    Path filePath = Paths.get("uploads/menus/" + fileName);
-//                    Files.createDirectories(filePath.getParent());
-//                    Files.write(filePath, menuImage.getBytes());
-//                    restaurantDTO.getMenuList().get(i).setMenuProfile(filePath.toString());
-//                }
-//            }
-//        }
-//
-//        // Save to database
-//        Restaurant restaurant = modelMapper.map(restaurantDTO, Restaurant.class);
-//        Restaurant saved = restaurantRepository.save(restaurant);
-//        return modelMapper.map(saved, RestaurantDTO.class);
-//    }
+    @Transactional
+    public RestaurantDTO createRestaurantWithImages(RestaurantDTO restaurantDTO, MultipartFile restaurantImage, List<MultipartFile> menuImages) throws IOException {
+        // Handle restaurant profile image
+        if (restaurantImage != null && !restaurantImage.isEmpty()) {
+            String fileName = UUID.randomUUID().toString() + "_" + restaurantImage.getOriginalFilename();
+            Path filePath = Paths.get("uploads/restaurants/" + fileName);
+            Files.createDirectories(filePath.getParent());
+            Files.write(filePath, restaurantImage.getBytes());
+            restaurantDTO.setRestaurantProfile(filePath.toString());
+        }
+
+        // Handle menu images
+        if (menuImages != null && !menuImages.isEmpty() && restaurantDTO.getMenuList() != null) {
+            for (int i = 0; i < Math.min(menuImages.size(), restaurantDTO.getMenuList().size()); i++) {
+                MultipartFile menuImage = menuImages.get(i);
+                if (menuImage != null && !menuImage.isEmpty()) {
+                    String fileName = UUID.randomUUID().toString() + "_" + menuImage.getOriginalFilename();
+                    Path filePath = Paths.get("uploads/menus/" + fileName);
+                    Files.createDirectories(filePath.getParent());
+                    Files.write(filePath, menuImage.getBytes());
+                    restaurantDTO.getMenuList().get(i).setMenuProfile(filePath.toString());
+                }
+            }
+        }
+
+        // Save to database
+        Restaurant restaurant = modelMapper.map(restaurantDTO, Restaurant.class);
+        Restaurant saved = restaurantRepository.save(restaurant);
+        return modelMapper.map(saved, RestaurantDTO.class);
+    }
 
     @Override
     public List<RestaurantDTO> createBulkRestaurant(List<RestaurantDTO> restaurantDTO) {

@@ -1,5 +1,6 @@
 package com.example.FoodApp.dto;
 
+import com.example.FoodApp.Enum.Role;
 import com.example.FoodApp.config.CustomUser;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,6 +11,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LoginResponse {
-    private UserDetails userDetails;
+    @Data
+    private  class UserDetailsResponse{
+        private String username;
+        private String email;
+        private Role role;
+    }
     private String token;
 }
