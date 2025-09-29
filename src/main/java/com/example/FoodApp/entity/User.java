@@ -21,7 +21,7 @@ public class User {
     private Long userId;
 
     @Column(nullable = false,unique = true,length = 20)
-    private String userName;
+    private String username;
 
     @Lob
     @Column(name = "user_profile", columnDefinition = "LONGTEXT")

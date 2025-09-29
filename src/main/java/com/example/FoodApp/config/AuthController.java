@@ -17,6 +17,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth/user")
 @CrossOrigin(origins = "*",maxAge = 3600)
@@ -27,29 +29,35 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
-    private CustomUserDetailsService customUserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
     private final JwtUtil jwtUtil;
 
 
-    @PostMapping("register")
+    @PostMapping("/register")
     public ResponseEntity<UserDTO> register(@Valid @RequestBody SignupRequest signupRequest){
-        userService.
+        UserDTO userDTO = userService.registerUser(signupRequest);
+        return ResponseEntity.ok(userDTO);
     }
 
 
+    @PostMapping("/login-user")
+    public ResponseEntity<?> loginUser( @RequestBody LoginRequest loginRequest){
 
+        try {
+            System.out.println(loginRequest.toString()+"---------------------1");
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+            );
 
-
-
-
-
-
-
-    @PostMapping("login-user")
-    public ResponseEntity<LoginResponse> loginUser(@Valid @RequestBody LoginRequest loginRequest){
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),loginRequest.getPassword()));
-        final UserDetails userDetails=customUserDetailsService.loadUserByUsername(loginRequest.getUsername());
-        final String jwtToken = jwtUtil.generateJwtToken(userDetails);
-        return ResponseEntity.ok(new LoginResponse(userDetails,jwtToken ));
+            final UserDetails userDetails = customUserDetailsService.loadUserByUsername(loginRequest.getUsername());
+            final String jwtToken = jwtUtil.generateJwtToken(userDetails);
+            System.out.println(userDetails.toString()+"---------------------2");
+            return ResponseEntity.ok(new LoginResponse(userDetails, jwtToken));
+        } catch (Exception ex) {
+            return ResponseEntity
+                    .status(401)
+                    .body(Map.of("error", "Invalid username or password"));
+        }
     }
+
 }
