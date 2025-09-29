@@ -24,7 +24,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         logger.debug("Loading user by userName:{} ",username);
        User user=  userRepository.findByUserName(username).orElseThrow(()->new UsernameNotFoundException("User not found"));
        logger.debug("User found : username : {} ,enabled :{} , role : {}",user.getUserName(),user.isEnabled(),user.getRole());
-       return new CustomerUser(user);
+       return new CustomUser(user);
     }
 
 
@@ -32,6 +32,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         logger.debug("Loading user Details by user email : {} ",userEmail);
         User user=userRepository.findByUserEmail(userEmail).orElseThrow(()->new UserNotFoundException("User not found by user email "+userEmail));
         logger.debug("User Details : userEmail :{} ",userEmail);
-        return new CustomerUser(user);
+        return new CustomUser(user);
     }
 }
