@@ -13,7 +13,7 @@ public interface RestaurantService {
     RestaurantDTO createRestaurant(RestaurantDTO dto, MultipartFile restaurantImage, MultipartFile[] menuImages) throws IOException;
 
 
-//    RestaurantDTO createRestaurantWithImages(RestaurantDTO restaurantDTO, MultipartFile restaurantImage, List<MultipartFile> menuImages) throws IOException;
+    RestaurantDTO createRestaurantWithImages(RestaurantDTO restaurantDTO, MultipartFile restaurantImage, List<MultipartFile> menuImages) throws IOException;
     List<RestaurantDTO> createBulkRestaurant(List<RestaurantDTO> restaurantDTO);
     RestaurantDTO getRestaurantById(Long restaurantId);
     List<RestaurantDTO> getAllRestaurants();

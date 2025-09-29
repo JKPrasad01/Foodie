@@ -19,16 +19,16 @@ public class RestaurantController {
     private final RestaurantService restaurantService;
 
     // Create restaurant with optional images
-//    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public ResponseEntity<RestaurantDTO> createRestaurant(
-//            @RequestPart("restaurant") RestaurantDTO restaurantDTO,
-//            @RequestPart(value = "restaurantImage", required = false) MultipartFile restaurantImage,
-//            @RequestPart(value = "menuImages", required = false) MultipartFile[] menuImages
-//    ) throws Exception {
-//        // Call service to handle saving restaurant + images
-//        RestaurantDTO savedRestaurant = restaurantService.createRestaurant(restaurantDTO, restaurantImage, menuImages);
-//        return ResponseEntity.ok(savedRestaurant);
-//    }
+    @PostMapping(value = "/create-restaurant", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<RestaurantDTO> createRestaurant(
+            @RequestPart("restaurant") RestaurantDTO restaurantDTO,
+            @RequestPart(value = "restaurantImage", required = false) MultipartFile restaurantImage,
+            @RequestPart(value = "menuImages", required = false) MultipartFile[] menuImages
+    ) throws Exception {
+        // Call service to handle saving restaurant + images
+        RestaurantDTO savedRestaurant = restaurantService.createRestaurant(restaurantDTO, restaurantImage, menuImages);
+        return ResponseEntity.ok(savedRestaurant);
+    }
 
     @PostMapping("/create")
     public ResponseEntity<RestaurantDTO> create(@RequestBody RestaurantDTO restaurantDTO){

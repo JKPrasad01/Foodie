@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
 
         try{
             // validate user name
-            if(userRepository.existsByUserName(signupRequest.getUserName())){
+            if(userRepository.existsByUsername(signupRequest.getUserName())){
                 logger.warn("Registration failed : UserName '{}' is Already taken",signupRequest.getUserName());
             }
 
@@ -104,7 +104,7 @@ public class UserServiceImpl implements UserService {
             User user=mapToUser(signupRequest);
             User saved = userRepository.save(user);
 
-            logger.info("User registration successfully : ID:{},username:{} ,email : {}",saved.getUserId(),saved.getUserName(),saved.getUserEmail());
+            logger.info("User registration successfully : ID:{},username:{} ,email : {}",saved.getUserId(),saved.getUsername(),saved.getUserEmail());
             return modelMapper.map(saved,UserDTO.class);
         }
         catch (Exception e){
@@ -116,10 +116,10 @@ public class UserServiceImpl implements UserService {
 
     private User mapToUser(SignupRequest signupRequest){
         User user=new User();
-        user.setUserName(signupRequest.getUserName());
+        user.setUsername(signupRequest.getUserName());
         user.setUserEmail(signupRequest.getEmail());
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
-        user.setContactNumber(signupRequest.getContactNumber());
+//        user.setContactNumber(signupRequest.getContactNumber());
         user.setRole(Role.USER);
 
         return user;
@@ -127,6 +127,6 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     public boolean isUsernameAvailable(String userName){
-        return userRepository.existsByUserName(userName);
+        return userRepository.existsByUsername(userName);
     }
 }

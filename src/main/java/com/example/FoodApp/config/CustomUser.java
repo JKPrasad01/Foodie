@@ -2,7 +2,6 @@ package com.example.FoodApp.config;
 
 import com.example.FoodApp.entity.User;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,7 +11,7 @@ import java.util.List;
 
 
 @Data
-public class CustomerUser implements UserDetails {
+public class CustomUser implements UserDetails {
     private final User user;
 
 
@@ -28,7 +27,7 @@ public class CustomerUser implements UserDetails {
 
     @Override
     public String getUsername(){
-        return user.getUserName();
+        return user.getUsername();
     }
 
     @Override

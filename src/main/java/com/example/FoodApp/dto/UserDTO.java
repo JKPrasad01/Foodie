@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 public class UserDTO {
     private Long userId;
-    private String userName;
+    private String username;
     private String userProfile;
     private String userEmail;
     private String password;
