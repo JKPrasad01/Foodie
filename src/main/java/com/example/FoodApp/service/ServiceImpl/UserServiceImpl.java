@@ -41,10 +41,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO logInUser(String userEmail, String password){
+    public UserDTO logInUser(String username, String password){
 
-        User user = userRepository.findByUserEmail(userEmail).orElseThrow(()->new UserNotFoundException(userEmail+" and "+password));
+        User user = userRepository.findByUsername(username).orElseThrow(()->new UserNotFoundException(username+" and "+password));
 
+        System.out.println(password);
         if(!passwordEncoder.matches(password,user.getPassword())){
             throw new BadCredentialsException("Invalid Password");
         }

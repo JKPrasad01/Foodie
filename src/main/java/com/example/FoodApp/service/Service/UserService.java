@@ -10,7 +10,7 @@ public interface UserService {
     UserDTO createUser(UserDTO userDTO);
     UserDTO registerUser(SignupRequest signupRequest);
 
-    UserDTO logInUser(String userEmail, String password);
+    UserDTO logInUser(String username, String password);
     UserDTO getUserById(Long userId);
     UserDTO updateUser(Long userId,UserDTO userDTO);
     List<UserDTO> findAll();
