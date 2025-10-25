@@ -1,7 +1,7 @@
 package com.example.FoodApp.config;
 
 import com.example.FoodApp.entity.User;
-import lombok.Data;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,43 +10,44 @@ import java.util.Collection;
 import java.util.List;
 
 
-@Data
-public class CustomUser implements UserDetails {
-    private final User user;
 
-
+public record CustomUser(User user) implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_"+user.getRole().name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
     }
 
     @Override
-    public String getPassword(){
+    public String getPassword() {
         return user.getPassword();
     }
 
     @Override
-    public String getUsername(){
+    public String getUsername() {
         return user.getUsername();
     }
 
     @Override
-    public boolean isAccountNonExpired(){
-        return user.isAccountNonExpired();
+    public boolean isAccountNonExpired() {
+        return true;
     }
 
     @Override
-    public boolean isAccountNonLocked(){
-        return user.isAccountNonLocked();
+    public boolean isAccountNonLocked() {
+        return true;
     }
 
     @Override
-    public boolean isCredentialsNonExpired(){
-        return user.isCredentialsNonExpired();
+    public boolean isCredentialsNonExpired() {
+        return true;
     }
 
     @Override
-    public boolean isEnabled(){
-        return user.isEnabled();
+    public boolean isEnabled() {
+        return true;
+    }
+
+    public boolean isActive() {
+        return isEnabled() && isAccountNonExpired() && isAccountNonLocked() && isCredentialsNonExpired();
     }
 }

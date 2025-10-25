@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-
+import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Data
@@ -48,23 +48,6 @@ public class User {
     private LocalDateTime createdDate;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @UpdateTimestamp
     private LocalDateTime lastUpdateTime;
-
-    // Account Status Fields
-
-    @Column(nullable = false)
-    private boolean enabled=true;
-
-    @Column(nullable = false)
-    private boolean accountNonExpired=true;
-
-    @Column(nullable = false)
-    private boolean accountNonLocked=true;
-
-    @Column(nullable = false)
-    private boolean credentialsNonExpired=true;
-
-    public boolean isActive(){
-        return enabled && accountNonExpired && accountNonLocked && credentialsNonExpired;
-    }
 }
