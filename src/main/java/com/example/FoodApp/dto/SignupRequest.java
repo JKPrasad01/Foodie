@@ -11,7 +11,7 @@ public class SignupRequest {
 
     @NotBlank(message = "User Name  is required")
     @Size(min = 3,max = 20,message = "User name is must be between 3 and 20 characters")
-    private String userName;
+    private String username;
 
     @NotBlank(message = "Email is required")
     @Email(message = "Please provider valid email address")

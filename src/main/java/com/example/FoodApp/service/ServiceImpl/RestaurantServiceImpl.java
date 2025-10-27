@@ -1,6 +1,7 @@
 package com.example.FoodApp.service.ServiceImpl;
 
 import com.example.FoodApp.Exception.RestaurantNotFoundException;
+import com.example.FoodApp.dto.AllRestaurantsDTO;
 import com.example.FoodApp.dto.MenuDTO;
 import com.example.FoodApp.dto.RestaurantDTO;
 import com.example.FoodApp.entity.Menu;
@@ -157,6 +158,12 @@ public class RestaurantServiceImpl implements RestaurantService {
     public List<RestaurantDTO> getAllRestaurants() {
         List<Restaurant> list = restaurantRepository.findAll();
         return list.stream().map(restaurant -> modelMapper.map(restaurant, RestaurantDTO.class)).toList();
+    }
+
+    @Override
+    public List<AllRestaurantsDTO> allRestaurants() {
+        List<Restaurant> list = restaurantRepository.findAll();
+        return list.stream().map(restaurant -> modelMapper.map(restaurant, AllRestaurantsDTO.class)).toList();
     }
 
     @Transactional

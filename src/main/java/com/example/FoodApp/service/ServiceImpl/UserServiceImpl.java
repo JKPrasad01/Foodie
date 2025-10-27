@@ -88,12 +88,12 @@ public class UserServiceImpl implements UserService {
 
 
     public UserDTO registerUser(SignupRequest signupRequest){
-        logger.info("Starting registration process for username: '{}' :" , signupRequest.getUserName());
+        logger.info("Starting registration process for username: '{}' :" , signupRequest.getUsername());
 
         try{
             // validate user name
-            if(userRepository.existsByUsername(signupRequest.getUserName())){
-                logger.warn("Registration failed : UserName '{}' is Already taken",signupRequest.getUserName());
+            if(userRepository.existsByUsername(signupRequest.getUsername())){
+                logger.warn("Registration failed : UserName '{}' is Already taken",signupRequest.getUsername());
             }
 
             //validate user email
@@ -117,7 +117,7 @@ public class UserServiceImpl implements UserService {
 
     private User mapToUser(SignupRequest signupRequest){
         User user=new User();
-        user.setUsername(signupRequest.getUserName());
+        user.setUsername(signupRequest.getUsername());
         user.setUserEmail(signupRequest.getEmail());
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
 //        user.setContactNumber(signupRequest.getContactNumber());

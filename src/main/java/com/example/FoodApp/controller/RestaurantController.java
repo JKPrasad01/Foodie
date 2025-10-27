@@ -1,5 +1,6 @@
 package com.example.FoodApp.controller;
 
+import com.example.FoodApp.dto.AllRestaurantsDTO;
 import com.example.FoodApp.dto.MenuDTO;
 import com.example.FoodApp.dto.RestaurantDTO;
 import com.example.FoodApp.service.Service.RestaurantService;
@@ -45,6 +46,11 @@ public class RestaurantController {
     @GetMapping("/all")
     public ResponseEntity<List<RestaurantDTO>> getAll() {
         return ResponseEntity.ok(restaurantService.getAllRestaurants());
+    }
+
+    @GetMapping("/all-restaurants")
+    public ResponseEntity<List<AllRestaurantsDTO>> allRestaurants() {
+        return ResponseEntity.ok(restaurantService.allRestaurants());
     }
 
     @PutMapping("/update/{restaurantId}")

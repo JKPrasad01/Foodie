@@ -83,6 +83,7 @@ public class AuthController {
                     .path("/")
                     .maxAge(60*60)
                     .domain("localhost")
+                    .secure(true)
                     .build();
 
             return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(response);

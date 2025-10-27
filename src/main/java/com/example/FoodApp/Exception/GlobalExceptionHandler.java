@@ -39,4 +39,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleGenericException(Exception ex) {
         return new ResponseEntity<>("An error occurred: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+
+    @ExceptionHandler(RoleExistsAlreadyException.class)
+    public ResponseEntity<String> handleRoleAlreadyExistsException(RoleExistsAlreadyException  ex) {
+        return new ResponseEntity<>("Role already exists : " + ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+    }
+
+
+    @ExceptionHandler(RoleNotFoundException.class)
+    public ResponseEntity<String> handleRoleNotFoundException(RoleNotFoundException  ex) {
+        return new ResponseEntity<>("Role not found: " + ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
 }
