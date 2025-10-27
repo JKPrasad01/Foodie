@@ -23,12 +23,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
        logger.debug("Loading user by userName:{} ",username);
-       User user=  userRepository.findByUsername(username).orElseThrow(()->new UsernameNotFoundException("User not found"));
-       logger.debug("User found : username : {} , role : {}",user.getUsername(),user.getRole());
+       User user=  userRepository.findByUsernameWithRoles(username).orElseThrow(()->new UsernameNotFoundException("User not found"));
+       logger.debug("User found : username : {} , role : {}",user.getUsername(),user.getRoles());
 
        return new CustomUser(user);
     }
-
 
     public UserDetails loadUserByUserEmail(String userEmail){
         logger.debug("Loading user Details by user email : {} ",userEmail);
