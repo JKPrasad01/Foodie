@@ -7,7 +7,6 @@ import com.example.FoodApp.dto.SignupRequest;
 import com.example.FoodApp.dto.UserDTO;
 import com.example.FoodApp.entity.Role;
 import com.example.FoodApp.entity.User;
-import com.example.FoodApp.entity.UserRole;
 import com.example.FoodApp.repository.RoleRepository;
 import com.example.FoodApp.repository.UserRepository;
 import com.example.FoodApp.service.Service.UserService;
