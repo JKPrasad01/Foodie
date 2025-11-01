@@ -1,10 +1,13 @@
 package com.example.FoodApp.service.ServiceImpl;
 
-import com.example.FoodApp.Enum.Role;
+
+import com.example.FoodApp.Exception.RoleNotFoundException;
 import com.example.FoodApp.Exception.UserNotFoundException;
 import com.example.FoodApp.dto.SignupRequest;
 import com.example.FoodApp.dto.UserDTO;
+import com.example.FoodApp.entity.Role;
 import com.example.FoodApp.entity.User;
+import com.example.FoodApp.repository.RoleRepository;
 import com.example.FoodApp.repository.UserRepository;
 import com.example.FoodApp.service.Service.UserService;
 
@@ -19,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 
 @Service
@@ -26,6 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
     private static final Logger logger=  LoggerFactory.getLogger(UserServiceImpl.class);
@@ -88,12 +93,12 @@ public class UserServiceImpl implements UserService {
 
 
     public UserDTO registerUser(SignupRequest signupRequest){
-        logger.info("Starting registration process for username: '{}' :" , signupRequest.getUserName());
+        logger.info("Starting registration process for username: '{}' :" , signupRequest.getUsername());
 
         try{
             // validate user name
-            if(userRepository.existsByUsername(signupRequest.getUserName())){
-                logger.warn("Registration failed : UserName '{}' is Already taken",signupRequest.getUserName());
+            if(userRepository.existsByUsername(signupRequest.getUsername())){
+                logger.warn("Registration failed : UserName '{}' is Already taken",signupRequest.getUsername());
             }
 
             //validate user email
@@ -101,8 +106,10 @@ public class UserServiceImpl implements UserService {
                 logger.warn("Registration failed : Email '{}' is Already existed",signupRequest.getEmail());
             }
 
+
             // create user
             User user=mapToUser(signupRequest);
+
             User saved = userRepository.save(user);
 
             logger.info("User registration successfully : ID:{},username:{} ,email : {}",saved.getUserId(),saved.getUsername(),saved.getUserEmail());
@@ -116,15 +123,18 @@ public class UserServiceImpl implements UserService {
 
 
     private User mapToUser(SignupRequest signupRequest){
-        User user=new User();
-        user.setUsername(signupRequest.getUserName());
+        User user = new User();
+        user.setUsername(signupRequest.getUsername());
         user.setUserEmail(signupRequest.getEmail());
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
-//        user.setContactNumber(signupRequest.getContactNumber());
-        user.setRole(Role.USER);
 
+        Role role = roleRepository.findByRole("USER")
+                .orElseThrow(() -> new RoleNotFoundException("USER"));
+
+        user.setRoles(Set.of(role)); // <-- use managed entity
         return user;
     }
+
 
     @Transactional(readOnly = true)
     public boolean isUsernameAvailable(String userName){

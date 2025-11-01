@@ -1,5 +1,6 @@
 package com.example.FoodApp.service.Service;
 
+import com.example.FoodApp.dto.AllRestaurantsDTO;
 import com.example.FoodApp.dto.MenuDTO;
 import com.example.FoodApp.dto.RestaurantDTO;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,7 +12,7 @@ public interface RestaurantService {
     RestaurantDTO createRestaurant(RestaurantDTO restaurantDTO);
 
     RestaurantDTO createRestaurant(RestaurantDTO dto, MultipartFile restaurantImage, MultipartFile[] menuImages) throws IOException;
-
+    List<AllRestaurantsDTO> allRestaurants();
 
     RestaurantDTO createRestaurantWithImages(RestaurantDTO restaurantDTO, MultipartFile restaurantImage, List<MultipartFile> menuImages) throws IOException;
     List<RestaurantDTO> createBulkRestaurant(List<RestaurantDTO> restaurantDTO);

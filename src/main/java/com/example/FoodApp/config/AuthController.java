@@ -1,12 +1,7 @@
 package com.example.FoodApp.config;
 
-import com.example.FoodApp.dto.LoginRequest;
-import com.example.FoodApp.dto.LoginResponse;
-import com.example.FoodApp.dto.SignupRequest;
-import com.example.FoodApp.dto.UserDTO;
+import com.example.FoodApp.dto.*;
 import com.example.FoodApp.service.Service.UserService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -17,80 +12,90 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Map;
 
 @RestController
 @RequestMapping("/auth/user")
 @CrossOrigin(
-        origins = "http://localhost:5173",  // your frontend
-        allowCredentials = "true",          // allow cookies
-        maxAge = 3600
+        origins = "http://localhost:5173",
+        allowCredentials = "true" // critical: allows cookies in CORS
 )
 @RequiredArgsConstructor
 public class AuthController {
-    private static final Logger logger= LoggerFactory.getLogger(AuthController.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final CustomUserDetailsService customUserDetailsService;
     private final JwtUtil jwtUtil;
-    private final PasswordEncoder passwordEncoder;
 
+    // REGISTER USER
     @PostMapping("/register")
-    public ResponseEntity<UserDTO> register(@Valid @RequestBody SignupRequest signupRequest){
+    public ResponseEntity<UserDTO> register(@Valid @RequestBody SignupRequest signupRequest) {
         UserDTO userDTO = userService.registerUser(signupRequest);
         return ResponseEntity.ok(userDTO);
     }
 
-//    @PostMapping("/login-user")
-//    public ResponseEntity<?> loginUser( @RequestBody LoginRequest loginRequest){
-//        try {
-//            logger.info("login details : username : {} ",loginRequest.getUsername());
-//
-//            final UserDetails userDetails = customUserDetailsService.loadUserByUsername(loginRequest.getUsername());
-//            final String jwtToken = jwtUtil.generateJwtToken(userDetails);
-//            return ResponseEntity.ok(new LoginResponse( jwtToken));
-//        } catch (Exception ex) {
-//            logger.warn("Invalid username : {}",loginRequest.getUsername() );
-//            return ResponseEntity
-//                    .status(401)
-//                    .body(Map.of("error", "Invalid username or password"));
-//        }
-//    }
-
+    // LOGIN USER
     @PostMapping("/login-user")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
         try {
-            // 1. Authenticate
+            logger.info("Login attempt for user: {}", loginRequest.getUsername());
+
+            // Authenticate
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getUsername(),
+                            loginRequest.getPassword()
+                    )
             );
 
-            // 2. Load user details
-            final UserDetails userDetails = customUserDetailsService.loadUserByUsername(loginRequest.getUsername());
+            // Load user details
+            final UserDetails userDetails = customUserDetailsService
+                    .loadUserByUsername(loginRequest.getUsername());
 
-            // 3. Generate JWT
+            // Generate JWT
             final String jwtToken = jwtUtil.generateJwtToken(userDetails);
 
-            // 4. Get UserDTO
-            UserDTO response = userService.logInUser(loginRequest.getUsername(), loginRequest.getPassword());
+            //Fetch user DTO (so you can send back profile info)
+            UserDTO userDTO = userService.logInUser(loginRequest.getUsername(), loginRequest.getPassword());
 
-            // 5. Set cookie (for dev: secure=false)
+            //Set JWT cookie
             ResponseCookie cookie = ResponseCookie.from("jwt", jwtToken)
                     .httpOnly(true)
-                    .secure(false)
+                    .secure(false) // keep false for local dev (HTTPS only = true in prod)
                     .path("/")
-                    .maxAge(60*60)
-                    .domain("localhost")
+                    .maxAge(60 * 60) // 1 hour
+                    .sameSite("Lax") // important for local dev with CORS
                     .build();
 
-            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(response);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .body(userDTO);
 
         } catch (Exception ex) {
-            ex.printStackTrace(); // shows exact reason
-            return ResponseEntity.status(401).body(Map.of("error", "Invalid username or password"));
+            logger.error("Login failed for user {}: {}", loginRequest.getUsername(), ex.getMessage());
+            return ResponseEntity.status(401)
+                    .body(Map.of("error", "Invalid username or password"));
         }
     }
 
+    //  LOGOUT USER (clears cookie)
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        ResponseCookie cookie = ResponseCookie.from("jwt", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0) // delete cookie
+                .sameSite("Lax")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(Map.of("message", "Logged out successfully"));
+    }
 }
