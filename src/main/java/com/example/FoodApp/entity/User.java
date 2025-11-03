@@ -50,6 +50,7 @@ public class User {
 
     @CreationTimestamp
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(updatable = false)
     private LocalDateTime createdDate;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
