@@ -61,7 +61,7 @@ public class AuthController {
             final String jwtToken = jwtUtil.generateJwtToken(userDetails);
 
             //Fetch user DTO (so you can send back profile info)
-            UserDTO userDTO = userService.logInUser(loginRequest.getUsername(), loginRequest.getPassword());
+            LoginResponse response = userService.logInUser(loginRequest.getUsername(), loginRequest.getPassword());
 
             //Set JWT cookie
             ResponseCookie cookie = ResponseCookie.from("jwt", jwtToken)
@@ -74,7 +74,7 @@ public class AuthController {
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body(userDTO);
+                    .body(response);
 
         } catch (Exception ex) {
             logger.error("Login failed for user {}: {}", loginRequest.getUsername(), ex.getMessage());

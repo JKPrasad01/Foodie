@@ -1,6 +1,7 @@
 package com.example.FoodApp.controller;
 
 import com.example.FoodApp.dto.UserDTO;
+import com.example.FoodApp.dto.UserUpdateDTO;
 import com.example.FoodApp.service.Service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,15 +21,22 @@ public class UserController {
         return ResponseEntity.ok(list);
     }
 
-    @GetMapping("/get-user/{userId}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Long userId){
-        UserDTO userDTO = userService.getUserById(userId);
-        return ResponseEntity.ok(userDTO);
+
+    @GetMapping("/fetch-user/{username}")
+    public ResponseEntity<UserUpdateDTO> getUserById(@PathVariable String username){
+        UserUpdateDTO response = userService.getUserByUsername(username);
+        return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/update/{userId}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long userId,@RequestBody UserDTO userDTO){
-        UserDTO dto = userService.updateUser(userId,userDTO);
+    @GetMapping("/get-user/{userId}")
+    public ResponseEntity<UserUpdateDTO> getUserById(@PathVariable Long userId){
+        UserUpdateDTO response = userService.getUserById(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/update/{username}")
+    public ResponseEntity<UserUpdateDTO> updateUser(@PathVariable String username, @RequestBody UserUpdateDTO user){
+        UserUpdateDTO dto = userService.updateUser(username,user);
         return ResponseEntity.ok(dto);
     }
 

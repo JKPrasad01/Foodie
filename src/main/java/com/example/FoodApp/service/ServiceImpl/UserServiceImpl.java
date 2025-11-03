@@ -3,8 +3,10 @@ package com.example.FoodApp.service.ServiceImpl;
 
 import com.example.FoodApp.Exception.RoleNotFoundException;
 import com.example.FoodApp.Exception.UserNotFoundException;
+import com.example.FoodApp.dto.LoginResponse;
 import com.example.FoodApp.dto.SignupRequest;
 import com.example.FoodApp.dto.UserDTO;
+import com.example.FoodApp.dto.UserUpdateDTO;
 import com.example.FoodApp.entity.Role;
 import com.example.FoodApp.entity.User;
 import com.example.FoodApp.repository.RoleRepository;
@@ -46,7 +48,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO logInUser(String username, String password){
+    public LoginResponse logInUser(String username, String password){
 
         User user = userRepository.findByUsername(username).orElseThrow(()->new UserNotFoundException(username+" and "+password));
 
@@ -55,13 +57,17 @@ public class UserServiceImpl implements UserService {
             throw new BadCredentialsException("Invalid Password");
         }
 
-        return modelMapper.map(user,UserDTO.class);
+        return LoginResponse.builder()
+                .userId(user.getUserId())
+                .username(username)
+                .role(user.getRoles())
+                .build();
     }
 
     @Override
-    public UserDTO getUserById(Long userId){
+    public UserUpdateDTO getUserById(Long userId){
             User user = userRepository.findById(userId).orElseThrow(()->new UserNotFoundException("User not found "+ userId));
-            return modelMapper.map(user,UserDTO.class);
+            return modelMapper.map(user,UserUpdateDTO.class);
     }
 
     public List<UserDTO> findAll(){
@@ -70,18 +76,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO updateUser(Long userId,UserDTO userDTO){
-        User user = userRepository.findById(userId).orElseThrow(()->new UserNotFoundException("User not found "+ userId));
+    public UserUpdateDTO updateUser(String username, UserUpdateDTO userDTO) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User not found " + username));
+        //  Selectively update only editable fields
+        if (userDTO.getUsername() != null) user.setUsername(userDTO.getUsername());
+        if (userDTO.getUserEmail() != null) user.setUserEmail(userDTO.getUserEmail());
+        if (userDTO.getContactNumber() != null) user.setContactNumber(userDTO.getContactNumber());
+        if (userDTO.getAddress() != null) user.setAddress(userDTO.getAddress());
+        if (userDTO.getUserProfile() != null) user.setUserProfile(userDTO.getUserProfile());
 
+        //  Preserve existing roles — never overwrite from frontend
+        // Do nothing for roles unless admin intentionally updates roles
 
-        modelMapper.map(userDTO,user);
-        user.setLastUpdateTime(LocalDateTime.now());
-        if(userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()){
-            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        }
-        User updated=userRepository.save(user);
-        return modelMapper.map(updated,UserDTO.class);
+        User updated = userRepository.save(user);
+        return modelMapper.map(updated, UserUpdateDTO.class);
     }
+
 
     @Override
     public String deleteUser(Long userId) {
@@ -90,6 +101,12 @@ public class UserServiceImpl implements UserService {
         return "Deleted SuccessFully";
     }
 
+
+    @Override
+    public UserUpdateDTO getUserByUsername(String username){
+       User user = userRepository.findByUsername(username).orElseThrow(()->new UserNotFoundException("User Details not found "+username));
+        return modelMapper.map(user,UserUpdateDTO.class);
+    }
 
 
     public UserDTO registerUser(SignupRequest signupRequest){

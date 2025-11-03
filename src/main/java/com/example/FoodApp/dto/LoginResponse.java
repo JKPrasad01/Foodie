@@ -1,21 +1,22 @@
 package com.example.FoodApp.dto;
 
-import com.example.FoodApp.Enum.Role;
-import com.example.FoodApp.config.CustomUser;
+
+
+import com.example.FoodApp.entity.Role;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
+
+
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class LoginResponse {
-    @Data
-    private  class UserDetailsResponse{
+        private Long userId;
         private String username;
-        private String email;
-        private Role role;
-    }
-    private String token;
+        private Set<Role> role;
 }
