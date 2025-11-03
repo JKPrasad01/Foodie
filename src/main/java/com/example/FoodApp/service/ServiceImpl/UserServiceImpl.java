@@ -63,7 +63,9 @@ public class UserServiceImpl implements UserService {
         return LoginResponse.builder()
                 .userId(user.getUserId())
                 .username(username)
-                .role(user.getRoles())
+                .roles(user.getRoles().stream()
+                        .map(Role::getRole)
+                        .collect(Collectors.toSet()))
                 .build();
     }
 

@@ -11,10 +11,10 @@ public interface UserService {
 
     UserDTO createUser(UserDTO userDTO);
     UserDTO registerUser(SignupRequest signupRequest);
-
-    UserDTO logInUser(String username, String password);
-    UserDTO getUserById(Long userId);
-    UserDTO updateUser(Long userId,UserDTO userDTO);
+    LoginResponse logInUser(String username, String password);
+    UserUpdateDTO getUserById(Long userId);
+    UserUpdateDTO updateUser(String username,UserUpdateDTO userUpdateDTO);
     List<UserDTO> findAll();
+    UserUpdateDTO getUserByUsername(String username);
     String deleteUser(Long userId);
 }

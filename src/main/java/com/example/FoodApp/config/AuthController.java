@@ -92,8 +92,7 @@ public class AuthController {
         if (userDetails == null) {
             return ResponseEntity.status(401).build();
         }
-
-        LoginResponse response = userService.getUserByUsername(userDetails.getUsername());
+        UserUpdateDTO response = userService.getUserByUsername(userDetails.getUsername());
         return ResponseEntity.ok(response);
     }
 
