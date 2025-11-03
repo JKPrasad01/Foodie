@@ -1,5 +1,6 @@
 package com.example.FoodApp.config;
 
+import com.example.FoodApp.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;

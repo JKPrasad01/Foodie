@@ -3,6 +3,7 @@ package com.example.FoodApp.service.ServiceImpl;
 
 import com.example.FoodApp.Exception.RoleNotFoundException;
 import com.example.FoodApp.Exception.UserNotFoundException;
+import com.example.FoodApp.dto.LoginResponse;
 import com.example.FoodApp.dto.SignupRequest;
 import com.example.FoodApp.dto.UserDTO;
 import com.example.FoodApp.entity.Role;
@@ -21,8 +22,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -45,8 +49,27 @@ public class UserServiceImpl implements UserService {
         return modelMapper.map(saved,UserDTO.class);
     }
 
+
+
     @Override
-    public UserDTO logInUser(String username, String password){
+    public LoginResponse getUserByUsername(String username){
+
+        User user = userRepository.findByUsername(username).orElseThrow(()->new UserNotFoundException(username));
+
+        LoginResponse response=new LoginResponse();
+        response.setUserId(user.getUserId());
+        response.setUsername(user.getUsername());
+        response.setUserProfile(user.getUserProfile());
+        response.setRoles(user.getRoles().stream()
+                .map(Role::getRole)
+                .collect(Collectors.toSet()));
+
+
+        return response;
+    }
+
+    @Override
+    public LoginResponse logInUser(String username, String password){
 
         User user = userRepository.findByUsername(username).orElseThrow(()->new UserNotFoundException(username+" and "+password));
 
@@ -55,7 +78,16 @@ public class UserServiceImpl implements UserService {
             throw new BadCredentialsException("Invalid Password");
         }
 
-        return modelMapper.map(user,UserDTO.class);
+        LoginResponse response=new LoginResponse();
+        response.setUserId(user.getUserId());
+        response.setUsername(user.getUsername());
+        response.setUserProfile(user.getUserProfile());
+        response.setRoles(user.getRoles().stream()
+                .map(Role::getRole)
+                .collect(Collectors.toSet()));
+
+
+        return response;
     }
 
     @Override
@@ -106,7 +138,6 @@ public class UserServiceImpl implements UserService {
                 logger.warn("Registration failed : Email '{}' is Already existed",signupRequest.getEmail());
             }
 
-
             // create user
             User user=mapToUser(signupRequest);
 
@@ -129,12 +160,11 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
 
         Role role = roleRepository.findByRole("USER")
-                .orElseThrow(() -> new RoleNotFoundException("USER"));
+                .orElseThrow(() -> new RoleNotFoundException("role not found : USER"));
 
-        user.setRoles(Set.of(role)); // <-- use managed entity
+        user.setRoles(Set.of(role));
         return user;
     }
-
 
     @Transactional(readOnly = true)
     public boolean isUsernameAvailable(String userName){

@@ -2,6 +2,7 @@ package com.example.FoodApp.config;
 
 import com.example.FoodApp.dto.*;
 import com.example.FoodApp.service.Service.UserService;
+import com.example.FoodApp.util.JwtUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -11,7 +12,9 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -33,6 +36,7 @@ public class AuthController {
     private final JwtUtil jwtUtil;
 
     // REGISTER USER
+    @Transactional
     @PostMapping("/register")
     public ResponseEntity<UserDTO> register(@Valid @RequestBody SignupRequest signupRequest) {
         UserDTO userDTO = userService.registerUser(signupRequest);
@@ -61,7 +65,7 @@ public class AuthController {
             final String jwtToken = jwtUtil.generateJwtToken(userDetails);
 
             //Fetch user DTO (so you can send back profile info)
-            UserDTO userDTO = userService.logInUser(loginRequest.getUsername(), loginRequest.getPassword());
+            LoginResponse response = userService.logInUser(loginRequest.getUsername(), loginRequest.getPassword());
 
             //Set JWT cookie
             ResponseCookie cookie = ResponseCookie.from("jwt", jwtToken)
@@ -74,13 +78,23 @@ public class AuthController {
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body(userDTO);
+                    .body(response);
 
         } catch (Exception ex) {
             logger.error("Login failed for user {}: {}", loginRequest.getUsername(), ex.getMessage());
             return ResponseEntity.status(401)
                     .body(Map.of("error", "Invalid username or password"));
         }
+    }
+
+    @GetMapping("/api/auth/me")
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        LoginResponse response = userService.getUserByUsername(userDetails.getUsername());
+        return ResponseEntity.ok(response);
     }
 
     //  LOGOUT USER (clears cookie)
