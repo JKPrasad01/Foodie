@@ -2,6 +2,7 @@ package com.example.FoodApp.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,6 +34,7 @@ public class User {
     private String userEmail;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
 
     private Long contactNumber;

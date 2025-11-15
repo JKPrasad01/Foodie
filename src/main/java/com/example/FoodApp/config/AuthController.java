@@ -12,11 +12,13 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -50,7 +52,7 @@ public class AuthController {
             logger.info("Login attempt for user: {}", loginRequest.getUsername());
 
             // Authenticate
-            authenticationManager.authenticate(
+            Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsername(),
                             loginRequest.getPassword()
@@ -58,14 +60,11 @@ public class AuthController {
             );
 
             // Load user details
-            final UserDetails userDetails = customUserDetailsService
-                    .loadUserByUsername(loginRequest.getUsername());
+            final UserDetails userDetails = (UserDetails) auth.getPrincipal();
 
             // Generate JWT
             final String jwtToken = jwtUtil.generateJwtToken(userDetails);
 
-            //Fetch user DTO (so you can send back profile info)
-            LoginResponse response = userService.logInUser(loginRequest.getUsername(), loginRequest.getPassword());
 
             //Set JWT cookie
             ResponseCookie cookie = ResponseCookie.from("jwt", jwtToken)
@@ -78,7 +77,7 @@ public class AuthController {
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body(response);
+                    .body("Logged In");
 
         } catch (Exception ex) {
             logger.error("Login failed for user {}: {}", loginRequest.getUsername(), ex.getMessage());

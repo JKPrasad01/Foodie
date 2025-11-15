@@ -41,14 +41,7 @@ public class UserServiceImpl implements UserService {
     private static final Logger logger=  LoggerFactory.getLogger(UserServiceImpl.class);
 
 
-    @Override
-    public UserDTO createUser(UserDTO userDTO){
-        System.out.println(userDTO);
-        User user=modelMapper.map(userDTO,User.class);
-        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        User saved= userRepository.save(user);
-        return modelMapper.map(saved,UserDTO.class);
-    }
+
 
     @Override
     public LoginResponse logInUser(String username, String password){
@@ -82,17 +75,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserUpdateDTO updateUser(String username, UserUpdateDTO userDTO) {
+
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("User not found " + username));
-        //  Selectively update only editable fields
+
         if (userDTO.getUsername() != null) user.setUsername(userDTO.getUsername());
         if (userDTO.getUserEmail() != null) user.setUserEmail(userDTO.getUserEmail());
         if (userDTO.getContactNumber() != null) user.setContactNumber(userDTO.getContactNumber());
         if (userDTO.getAddress() != null) user.setAddress(userDTO.getAddress());
+        if (userDTO.getBio() != null) user.setBio(userDTO.getBio());
         if (userDTO.getUserProfile() != null) user.setUserProfile(userDTO.getUserProfile());
-
-        //  Preserve existing roles — never overwrite from frontend
-        // Do nothing for roles unless admin intentionally updates roles
 
         User updated = userRepository.save(user);
         return modelMapper.map(updated, UserUpdateDTO.class);
