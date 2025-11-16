@@ -31,30 +31,23 @@ public class SecurityConfig {
    @Bean
    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
        httpSecurity.
-
-           //1. disable csrf protection
            csrf(AbstractHttpConfigurer::disable)
-
-           //2. enable cors configuration
            .cors(cors->cors.configurationSource(corsConfigurationSource()))
-
-           //3.configure URL authorization rules
-           .authorizeHttpRequests(auth->auth
+           .authorizeHttpRequests(auth -> auth
                    .requestMatchers(
-                           "/auth/user/**",
+                           "/auth/user/login-user",
+                           "/auth/user/register"
+                   ).permitAll()
+
+                   .requestMatchers(
                            "/swagger-ui.html",
                            "/swagger-ui/**",
-                           "/roles/**",
-                           "/v3/api-docs/**").permitAll()
-                   .anyRequest().authenticated())
-
-           //4.session management to be stateless (common for JWT)
+                           "/v3/api-docs/**"
+                   ).permitAll()
+                   .anyRequest().authenticated()
+           )
            .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-           //5.set custom authentication provider
            .authenticationProvider(authenticationProvider())
-
-           //6. add custom JWT filter before the default Username and passwordAuthenticationFilter
            .addFilterBefore(jwtAuthenticationFilter,UsernamePasswordAuthenticationFilter.class);
 
        return httpSecurity.build();

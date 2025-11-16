@@ -3,12 +3,12 @@ package com.example.FoodApp.config;
 import com.example.FoodApp.dto.*;
 import com.example.FoodApp.service.Service.UserService;
 import com.example.FoodApp.util.JwtUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,7 +18,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -47,11 +46,10 @@ public class AuthController {
 
     // LOGIN USER
     @PostMapping("/login-user")
-    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         try {
             logger.info("Login attempt for user: {}", loginRequest.getUsername());
 
-            // Authenticate
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsername(),
@@ -59,34 +57,38 @@ public class AuthController {
                     )
             );
 
-            // Load user details
-            final UserDetails userDetails = (UserDetails) auth.getPrincipal();
+            UserDetails userDetails = (UserDetails) auth.getPrincipal();
 
-            // Generate JWT
-            final String jwtToken = jwtUtil.generateJwtToken(userDetails);
+            String jwtToken = jwtUtil.generateJwtToken(userDetails);
+            String refreshToken = jwtUtil.generateRefreshToken(userDetails);
 
+            // Access token cookie
+            Cookie accessCookie = new Cookie("jwt", jwtToken);
+            accessCookie.setHttpOnly(true);
+            accessCookie.setSecure(false);
+            accessCookie.setPath("/");
+            accessCookie.setMaxAge(15 * 60);
 
-            //Set JWT cookie
-            ResponseCookie cookie = ResponseCookie.from("jwt", jwtToken)
-                    .httpOnly(true)
-                    .secure(false) // keep false for local dev (HTTPS only = true in prod)
-                    .path("/")
-                    .maxAge(60 * 60) // 1 hour
-                    .sameSite("Lax") // important for local dev with CORS
-                    .build();
+            // Refresh token cookie
+            Cookie refreshCookie = new Cookie("refresh-token", refreshToken);
+            refreshCookie.setHttpOnly(true);
+            refreshCookie.setSecure(false);
+            refreshCookie.setPath("/");
+            refreshCookie.setMaxAge(7 * 24 * 60 * 60);
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body("Logged In");
+            response.addCookie(accessCookie);
+            response.addCookie(refreshCookie);
+
+            return ResponseEntity.ok("Logged In");
 
         } catch (Exception ex) {
             logger.error("Login failed for user {}: {}", loginRequest.getUsername(), ex.getMessage());
-            return ResponseEntity.status(401)
-                    .body(Map.of("error", "Invalid username or password"));
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid username or password"));
         }
     }
 
-    @GetMapping("/api/auth/me")
+
+    @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
             return ResponseEntity.status(401).build();
@@ -97,17 +99,23 @@ public class AuthController {
 
     //  LOGOUT USER (clears cookie)
     @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
-        ResponseCookie cookie = ResponseCookie.from("jwt", "")
-                .httpOnly(true)
-                .secure(false)
-                .path("/")
-                .maxAge(0) // delete cookie
-                .sameSite("Lax")
-                .build();
+    public ResponseEntity<?> logout(HttpServletResponse response) {
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(Map.of("message", "Logged out successfully"));
+
+        Cookie cookie = new Cookie("jwt", "");
+                cookie.setHttpOnly(true);
+                cookie.setSecure(false);
+                cookie.setPath("/");
+                cookie.setMaxAge(0);
+
+        Cookie refreshCookie = new Cookie("refresh-token","");
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setSecure(false);
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(0);
+
+        response.addCookie(cookie);
+        response.addCookie(refreshCookie);
+        return ResponseEntity.ok("Logged out successfully");
     }
 }

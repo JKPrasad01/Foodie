@@ -113,6 +113,16 @@ public class JwtUtil {
         return createJwtToken(new HashMap<String, Object>(), userDetails);
     }
 
+    public String generateRefreshToken(UserDetails userDetails){
+        return Jwts.builder()
+                .setClaims(new HashMap<String,Object>())
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis()+7L*24 * 60 * 60))
+                .signWith(getSigningKey(),SignatureAlgorithm.HS256)
+                .compact();
+    }
+
     /*
     @Param claims custom claims to include in the payload
     @Param subject the token subject (usually in the payload)
